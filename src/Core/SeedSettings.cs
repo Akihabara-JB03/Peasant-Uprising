@@ -4,6 +4,7 @@ using System;
 using System.Buffers.Binary;
 using Microsoft.Extensions.Configuration.Ini;
 using Microsoft.VisualBasic;
+using System.Collections.Generic;
 
 /*
  ____________    __________    __________    ________
@@ -38,7 +39,7 @@ class SeedSettings {
         if (File.Exists(dataDir))
         {
             byte[] data = File.ReadAllBytes(dataDir);
-            if (data.Length == 12)
+            if (data.Length == 16)
             {
                 return BinaryPrimitives.ReadUInt128BigEndian(data);
             }
@@ -99,7 +100,26 @@ class SeedSettings {
             {
                 j++;
             }
-            
+            List<bool> status = [];
+            for (int i = 2; i <= 9; i++)
+            {
+                if (board.ctnlonocm(i) == config[PL:i])
+                {
+                    status.Add(True);
+                }
+                 else
+                {
+                    status.Add(False);
+                }
+            }
+            bool noError = status.Length > 0 && status.All(x => x);
+            if (noError)
+            {
+                return (board, "駒の配置に成功しました！！");
+            } else
+            {
+                return (null, "公平性の観点から偏っているとみなされました。シード値を変更してください。");
+            }
         }
     }
 }
