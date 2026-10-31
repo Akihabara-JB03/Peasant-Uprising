@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "ROfuloKu+Ik=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Owner\\Desktop\\Peasant Uprising\\src\\PeasantUprising.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.configuration\\10.0.14\\microsoft.extensions.configuration.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.14\\microsoft.extensions.configuration.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.configuration.fileextensions\\10.0.14\\microsoft.extensions.configuration.fileextensions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.configuration.ini\\10.0.14\\microsoft.extensions.configuration.ini.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\10.0.14\\microsoft.extensions.fileproviders.abstractions.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\10.0.14\\microsoft.extensions.fileproviders.physical.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\10.0.14\\microsoft.extensions.filesystemglobbing.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.14\\microsoft.extensions.primitives.10.0.14.nupkg.sha512",
+    "C:\\Users\\Owner\\.nuget\\packages\\raylib-cs\\7.0.2\\raylib-cs.7.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
