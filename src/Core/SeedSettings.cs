@@ -3,11 +3,16 @@ using System.IO;
 using System;
 using System.Buffers.Binary;
 using Microsoft.Extensions.Configuration.Ini;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.IO.Pipelines;
+using System.Reflection.Metadata;
 
 /*
- ____________    __________    __________    ________
+  ____________    __________    __________    ________
  / ___________|  |  ________|  |  ________|  |  ____  \
 / /___________   | |________   | |________   | |     \ \
 \ ___________ \  |  ________|  |  ________|  | |      | |
@@ -23,7 +28,7 @@ class SeedSettings {
     private IConfigurationRoot config;
     public SeedSettings()
     {
-        dataDir = Path.Combine(SaveDirectory, "PeasantUprising");
+        dataDir = Path.Combine(SaveDirectory, "Programs","PeasantUprising");
         string path = Path.Combine(
             dataDir,
             "Data",
@@ -81,7 +86,7 @@ class SeedSettings {
         ushort nibble;
         int? pie; //piece
         for (int i = 0; i <= 23; i++) {
-            nibble = seed >> 124 - 4*i & 0xf;
+            nibble = (ushort)((seed >> 124 - 4*i) & 0xfUL);
             pie = nibble switch
             {
                 0 or 7 => null,
@@ -95,30 +100,98 @@ class SeedSettings {
                 9 => 3,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            board.ctn[j,i % 9] = pie;
-            if (i % 9 == 0)
+            int x = i % 8;
+            bool isLastColumn = x == 7;
+            if (x >= 4)
+            {
+                x++;
+            }
+            board.ctn[j,x] = pie;
+            if (isLastColumn)
             {
                 j++;
             }
-            List<bool> status = [];
-            for (int i = 2; i <= 9; i++)
+        }
+        List<bool> status = [];
+        for (int k = 2; k <= 9; k++)
+        {
+            int result1;
+            int.TryParse(config[$"PL:{k}"],out result1);
+            Console.WriteLine(
+                $"Type {k}: Player={board.ctnlonocm(k)}, Enemy={board.ctnlonoce(k)}, Limit={result1}"
+            );
+            if (board.ctnlonocm(k) >= 0 && board.ctnlonocm(k) <= result1 && board.ctnlonoce(k) >= 0 && board.ctnlonoce(k) <= result1)
             {
-                if (board.ctnlonocm(i) == config[PL:i])
-                {
-                    status.Add(True);
-                }
-                 else
-                {
-                    status.Add(False);
-                }
+                status.Add(true);
             }
-            bool noError = status.Length > 0 && status.All(x => x);
-            if (noError)
+             else
             {
-                return (board, "駒の配置に成功しました！！");
-            } else
+              status.Add(false);
+            }
+        }
+        int ebpl = int.Parse(config["EBPL:null"]!);
+        bool noError = status.All(x => x) && status.Count >= 8;
+        Console.WriteLine(
+            $"Type null: Count={board.empty_ctn_count()}, Limit={ebpl}"
+        );
+        if (noError && board.empty_ctn_count() <= ebpl)
+        {
+            return (board, "駒の配置に成功しました！！");
+        }
+        return (null, "公平性の観点から偏っているとみなされました。シード値を変更してください。");
+    }
+    byte[] FGBGR() /*Fairness-Guaranteed Board Generation with Randomization*/
+    {
+        Board board = new Board();
+        Random random = new Random();
+        Dictionary<int,int> enemy_count = new();
+        Dictionary<int,int> player_count = new();
+        for (int i = 2; i <= 9; i++)
+        {
+            enemy_count[i] = 0;
+            player_count[i] = 0;
+        }
+        int empty_count = 0;
+        int? selected_Type;
+        int candidate_count;
+        for (int i = 0; i <= 23; i++)
+        {   
+            int y = i / 8;
+            int x = i % 8;
+            selected_Type = null;
+            candidate_count = 0;
+            bool isPlayer = i % 8 < 4;
+            if (x >= 4) x++;
+            if (!isPlayer) {
+                for (int j = 2; j <= 9; j++) {
+                    int result;
+                    int.TryParse(config[$"PL:{j}"],out result);
+                    if (enemy_count[j] < result)
+                    {
+                        candidate_count++;
+                        if (random.Next(candidate_count) == 0)
+                        {
+                            selected_Type = j;
+                        }
+                    }
+                }
+                board.ctn[y, x] = selected_Type;
+            }
+             else
             {
-                return (null, "公平性の観点から偏っているとみなされました。シード値を変更してください。");
+                for (int j = 2; j <= 9; j++) {
+                    int result;
+                    int.TryParse(config[$"PL:{j}"],out result);
+                    if (player_count[j] < result)
+                    {
+                        candidate_count++;
+                        if (random.Next(candidate_count) == 0)
+                        {
+                            selected_Type = j;
+                        }
+                    }
+                }
+                board.ctn[y, x] = selected_Type;
             }
         }
     }

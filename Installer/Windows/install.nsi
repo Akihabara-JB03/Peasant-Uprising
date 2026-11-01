@@ -8,10 +8,13 @@ Section "PeasantUprising"
 	File "..\..\Data\*"
 	SetOutPath "$INSTDIR\assets\"
 	File /r "..\..\assets\**"
+	SetOutPath "$INSTDIR\bin\"
+	File /r "..\..\bin\**"
 	WriteUninstaller "$INSTDIR\uninstall.exe"
 SectionEnd
 Section "Uninstall"
 
     Delete "$INSTDIR\uninstall.exe"
-    Delete "$INSTDIR\assets\fonts\*"
+    RMDir /r "$INSTDIR\assets"
+    RMDir /r "$INSTDIR\bin"
 SectionEnd
