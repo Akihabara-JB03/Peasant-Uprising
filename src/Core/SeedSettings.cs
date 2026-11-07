@@ -39,6 +39,24 @@ class SeedSettings {
             .AddIniFile(path)
             .Build();
     }
+    public int empty_seed(UInt128 seed)
+    {
+        ushort nibble;
+        int empty_count = 0;
+        for (int i = 0; i < 27; i++)
+        {
+            int x = i % 8;
+            nibble = (ushort)((seed >> 124 - 4*i) & 0xfUL);
+            if (nibble == 0 || nibble == 7)
+            {
+                empty_count++;
+            } else if (x % 4 == 0 && x != 0)
+            {
+                empty_count++;
+            }
+        }
+        return empty_count;
+    }
     public UInt128? GetSeed()
     {
         if (File.Exists(dataDir))
@@ -140,8 +158,9 @@ class SeedSettings {
         }
         return (null, "公平性の観点から偏っているとみなされました。シード値を変更してください。");
     }
-    byte[] FGBGR() /*Fairness-Guaranteed Board Generation with Randomization*/
+    bool FGBGR() /*Fairness-Guaranteed Board Generation with Randomization*/
     {
+        UInt128 seed = 0;
         Board board = new Board();
         Random random = new Random();
         Dictionary<int,int> enemy_count = new();
@@ -151,7 +170,6 @@ class SeedSettings {
             enemy_count[i] = 0;
             player_count[i] = 0;
         }
-        int empty_count = 0;
         int? selected_Type;
         int candidate_count;
         for (int i = 0; i <= 23; i++)
@@ -162,36 +180,66 @@ class SeedSettings {
             candidate_count = 0;
             bool isPlayer = i % 8 < 4;
             if (x >= 4) x++;
+            
             if (!isPlayer) {
-                for (int j = 2; j <= 9; j++) {
-                    int result;
-                    int.TryParse(config[$"PL:{j}"],out result);
-                    if (enemy_count[j] < result)
+                int maxempt;
+                int.TryParse(config[$"EBPL:null"],out maxempt);
+                if (board.empty_ctn_count() < maxempt) {
+                    if (random.Next(0,9) == 0)
                     {
-                        candidate_count++;
-                        if (random.Next(candidate_count) == 0)
+                        selected_Type = null;
+                    } else {
+                        for (int j = 2; j <= 9; j++) {
+                            int result;
+                            int.TryParse(config[$"PL:{j}"],out result);
+                            if (enemy_count[j] < result)
+                            {
+                                candidate_count++;
+                                if (random.Next(candidate_count) == 0)
+                                {
+                                    selected_Type = j;
+                                }
+                            }
+                        }
+                    }
+                } else
+                {
+                    for (int j = 2; j <= 9; j++) {
+                        int result;
+                        int.TryParse(config[$"PL:{j}"],out result);
+                        if (enemy_count[j] < result)
                         {
-                            selected_Type = j;
+                            candidate_count++;
+                            if (random.Next(candidate_count) == 0)
+                            {
+                                selected_Type = j;
+                            }
                         }
                     }
                 }
                 board.ctn[y, x] = selected_Type;
+                if (selected_Type != null) {
+                    enemy_count[selected_Type]++;
+                }
+                
             }
              else
             {
-                for (int j = 2; j <= 9; j++) {
-                    int result;
-                    int.TryParse(config[$"PL:{j}"],out result);
-                    if (player_count[j] < result)
-                    {
-                        candidate_count++;
-                        if (random.Next(candidate_count) == 0)
+                if ()
+                    for (int j = 2; j <= 9; j++) {
+                        int result;
+                        int.TryParse(config[$"PL:{j}"],out result);
+                        if (player_count[j] < result)
                         {
-                            selected_Type = j;
+                            candidate_count++;
+                            if (random.Next(candidate_count) == 0)
+                            {
+                                selected_Type = j;
+                            }
                         }
                     }
-                }
                 board.ctn[y, x] = selected_Type;
+                player_count[selected_Type]++;
             }
         }
     }
