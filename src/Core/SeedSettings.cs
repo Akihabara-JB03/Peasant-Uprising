@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.IO.Pipelines;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 
 /*
   ____________    __________    __________    ________
@@ -42,15 +43,11 @@ class SeedSettings {
     public int empty_seed(UInt128 seed)
     {
         ushort nibble;
-        int empty_count = 0;
-        for (int i = 0; i < 27; i++)
+        int empty_count = 3;
+        for (int i = 0; i < 24; i++)
         {
-            int x = i % 8;
             nibble = (ushort)((seed >> 124 - 4*i) & 0xfUL);
             if (nibble == 0 || nibble == 7)
-            {
-                empty_count++;
-            } else if (x % 4 == 0 && x != 0)
             {
                 empty_count++;
             }
@@ -158,9 +155,9 @@ class SeedSettings {
         }
         return (null, "公平性の観点から偏っているとみなされました。シード値を変更してください。");
     }
-    bool FGBGR() /*Fairness-Guaranteed Board Generation with Randomization*/
+    public bool FGBGR() /*Fairness-Guaranteed Board Generation with Randomization*/
     {
-        UInt128 seed = 0;
+        UInt128 seed = new UInt128(0x1111_1111_1111_1111UL, 0x1111_1111_0000_0000UL);
         Board board = new Board();
         Random random = new Random();
         Dictionary<int,int> enemy_count = new();
@@ -184,63 +181,84 @@ class SeedSettings {
             if (!isPlayer) {
                 int maxempt;
                 int.TryParse(config[$"EBPL:null"],out maxempt);
-                if (board.empty_ctn_count() < maxempt) {
+                if (empty_seed(seed) < 6) {
                     if (random.Next(0,9) == 0)
                     {
                         selected_Type = null;
-                    } else {
-                        for (int j = 2; j <= 9; j++) {
-                            int result;
-                            int.TryParse(config[$"PL:{j}"],out result);
-                            if (enemy_count[j] < result)
-                            {
-                                candidate_count++;
-                                if (random.Next(candidate_count) == 0)
-                                {
-                                    selected_Type = j;
-                                }
-                            }
-                        }
+                        goto skip_enemy;
                     }
-                } else
-                {
-                    for (int j = 2; j <= 9; j++) {
-                        int result;
-                        int.TryParse(config[$"PL:{j}"],out result);
-                        if (enemy_count[j] < result)
+                }
+                for (int j = 2; j <= 9; j++) {
+                    int result;
+                    int.TryParse(config[$"PL:{j}"],out result);
+                    if (enemy_count[j] < result)
+                    {
+                        candidate_count++;
+                        if (random.Next(candidate_count) == 0)
                         {
-                            candidate_count++;
-                            if (random.Next(candidate_count) == 0)
-                            {
-                                selected_Type = j;
-                            }
+                            selected_Type = j;
                         }
                     }
                 }
+                skip_enemy:
                 board.ctn[y, x] = selected_Type;
                 if (selected_Type != null) {
-                    enemy_count[selected_Type]++;
+                    enemy_count[(int)selected_Type]++;
                 }
                 
             }
              else
             {
-                if ()
-                    for (int j = 2; j <= 9; j++) {
-                        int result;
-                        int.TryParse(config[$"PL:{j}"],out result);
-                        if (player_count[j] < result)
+                if (empty_seed(seed) < 6)
+                    if (random.Next(0,9) == 0)
+                    {
+                        selected_Type = null;
+                        goto skip_player;
+                    }
+                for (int j = 2; j <= 9; j++) {
+                    int result;
+                    int.TryParse(config[$"PL:{j}"],out result);
+                    if (player_count[j] < result)
+                    {
+                        candidate_count++;
+                        if (random.Next(candidate_count) == 0)
                         {
-                            candidate_count++;
-                            if (random.Next(candidate_count) == 0)
-                            {
-                                selected_Type = j;
-                            }
+                            selected_Type = j;
                         }
                     }
+                }
+                skip_player:
                 board.ctn[y, x] = selected_Type;
-                player_count[selected_Type]++;
+                if (selected_Type != null) {
+                    player_count[(int)selected_Type]++;
+                }
             }
+            UInt128 nibble = (UInt128)(selected_Type switch
+            {
+                null => 0,
+                4 => 1,
+                5 => 2,
+                6 => 3,
+                7 => 4,
+                8 => 5,
+                9 => 6,
+                2 => 8,
+                3 => 9,
+                _ => 0
+            });
+            int shift = 124 - 4 * i;
+            seed &= ~((UInt128)0xF << shift);
+            seed |= nibble << (124 - 4 * i);
+        }
+        byte[] sb = new byte[16];
+        BinaryPrimitives.WriteUInt128BigEndian(sb, seed);
+        SetSeed(sb);
+        if (CBFS() is (null, _))
+        {
+            return false;
+        } else
+        {
+            return true;
         }
     }
 }
