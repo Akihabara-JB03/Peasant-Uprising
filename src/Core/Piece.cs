@@ -4,6 +4,7 @@ class Piece {
     public int? Level { get; set; }
     public int Side { get; set; }
     public int? Type { get; set; }
+    public int KillCount { get; set; } = 0;
     public Piece(int x,int? ctn /*Config Type Number*/)
     {
         if (x == 4)

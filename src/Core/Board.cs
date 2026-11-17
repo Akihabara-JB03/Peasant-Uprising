@@ -59,10 +59,4 @@ class Board
 
         return count;
     }
-    static void Main() {
-        SeedSettings seedsettings = new SeedSettings();
-        Board board = new Board();
-        bool result = seedsettings.FGBGR();
-        Console.WriteLine(result);
-    }
 }

@@ -2,15 +2,8 @@ namespace PeasantUprising.Core;
 using System.IO;
 using System;
 using System.Buffers.Binary;
-using Microsoft.Extensions.Configuration.Ini;
-using Microsoft.Extensions.Configuration;
-using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.IO.Pipelines;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
 
 /*
   ____________    __________    __________    ________
@@ -155,7 +148,7 @@ class SeedSettings {
         }
         return (null, "公平性の観点から偏っているとみなされました。シード値を変更してください。");
     }
-    public bool FGBGR() /*Fairness-Guaranteed Board Generation with Randomization*/
+    public (Board?, string) FGBGR() /*Fairness-Guaranteed Board Generation with Randomization*/
     {
         UInt128 seed = new UInt128(0x1111_1111_1111_1111UL, 0x1111_1111_0000_0000UL);
         Board board = new Board();
@@ -181,7 +174,7 @@ class SeedSettings {
             if (!isPlayer) {
                 int maxempt;
                 int.TryParse(config[$"EBPL:null"],out maxempt);
-                if (empty_seed(seed) < 6) {
+                if (empty_seed(seed) < maxempt) {
                     if (random.Next(0,9) == 0)
                     {
                         selected_Type = null;
@@ -209,7 +202,9 @@ class SeedSettings {
             }
              else
             {
-                if (empty_seed(seed) < 6)
+                int maxempt;
+                int.TryParse(config[$"EBPL:null"],out maxempt);
+                if (empty_seed(seed) < maxempt)
                     if (random.Next(0,9) == 0)
                     {
                         selected_Type = null;
@@ -253,12 +248,6 @@ class SeedSettings {
         byte[] sb = new byte[16];
         BinaryPrimitives.WriteUInt128BigEndian(sb, seed);
         SetSeed(sb);
-        if (CBFS() is (null, _))
-        {
-            return false;
-        } else
-        {
-            return true;
-        }
+        return CBFS();
     }
 }
