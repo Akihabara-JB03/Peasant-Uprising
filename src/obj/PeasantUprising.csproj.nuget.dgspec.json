@@ -56,10 +56,6 @@
             "Raylib-cs": {
               "target": "Package",
               "version": "[7.0.2, )"
-            },
-            "YamlDotNet": {
-              "target": "Package",
-              "version": "[18.1.0, )"
             }
           },
           "imports": [

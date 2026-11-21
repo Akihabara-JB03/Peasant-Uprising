@@ -1,5 +1,5 @@
 namespace PeasantUprising.Core;
-class Piece {
+public class Piece {
     public int? HP { get; set; }
     public int? Level { get; set; }
     public int Side { get; set; }

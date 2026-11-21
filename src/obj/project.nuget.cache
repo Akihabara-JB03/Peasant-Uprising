@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ZRp3HrRt37g=",
+  "dgSpecHash": "RUno44wh3bw=",
   "success": true,
   "projectFilePath": "C:\\Users\\Owner\\Desktop\\Peasant Uprising\\src\\PeasantUprising.csproj",
   "expectedPackageFiles": [
@@ -12,8 +12,7 @@
     "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\10.0.14\\microsoft.extensions.fileproviders.physical.10.0.14.nupkg.sha512",
     "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\10.0.14\\microsoft.extensions.filesystemglobbing.10.0.14.nupkg.sha512",
     "C:\\Users\\Owner\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.14\\microsoft.extensions.primitives.10.0.14.nupkg.sha512",
-    "C:\\Users\\Owner\\.nuget\\packages\\raylib-cs\\7.0.2\\raylib-cs.7.0.2.nupkg.sha512",
-    "C:\\Users\\Owner\\.nuget\\packages\\yamldotnet\\18.1.0\\yamldotnet.18.1.0.nupkg.sha512"
+    "C:\\Users\\Owner\\.nuget\\packages\\raylib-cs\\7.0.2\\raylib-cs.7.0.2.nupkg.sha512"
   ],
   "logs": []
 }

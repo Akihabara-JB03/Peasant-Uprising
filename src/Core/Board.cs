@@ -1,10 +1,6 @@
-using System.Diagnostics.Contracts;
-using System.Security.Cryptography;
-using System.Xml.Serialization;
-
 namespace PeasantUprising.Core;
 
-class Board
+public class Board
 {
     public Piece?[,] cell { get; set; } = new Piece?[3, 9];
     public int?[,] ctn { get; set; } = new int?[3, 9];

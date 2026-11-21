@@ -1,4 +1,4 @@
 @echo off
-dotnet run
-dotnet build
+dotnet run -c Release
+dotnet build -c Release
 pause
